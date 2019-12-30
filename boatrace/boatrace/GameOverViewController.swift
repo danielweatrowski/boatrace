@@ -25,20 +25,103 @@ class GameOverViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setUpView()
+        appDelegate.mpcManager.delegate = self
+        NotificationCenter.default.addObserver(self, selector: #selector(handleMPCReceivedDataWithNotification), name: NSNotification.Name(rawValue: "receivedMPCDataNotification"), object: nil)
+//        appDelegate.mpcManager.browser.startBrowsingForPeers()
+//        appDelegate.mpcManager.advertiser.startAdvertisingPeer()
     }
     
     func setUpView() {
         winLabel.text = didWin ? "Winner" : "Loser"
         timeLabel.text = time
     }
+    @objc func handleMPCReceivedDataWithNotification(notification: NSNotification) {
+        let receivedData = notification.object as! String
+        print("DATA RECIEVED: \(receivedData)")
+        guard let peerID = self.previousPeerID else {
+            print("unable to unwrap peerid")
+            return
+        }
+        OperationQueue.main.addOperation {
+        
+            switch (receivedData) {
+                case "request":
+                    self.confirmRematch()
+                    break
+                case "accepted":
+                    self.connectedWithPeer(peerID: peerID)
+                    break
+                case "done":
+                    self.endSession()
+                    self.didTapDone()
+                    break
+                //self.didWin = false
+                default: break
+            }
+        }
+    }
+    func confirmRematch() {
+        guard let peerID = self.previousPeerID else {
+            print("unable to unwrap peerid")
+            return
+        }
+        let alert = UIAlertController(title: "", message: "\(peerID) requests a rematch.", preferredStyle: UIAlertController.Style.alert)
+    
+        let acceptAction: UIAlertAction = UIAlertAction(title: "Accept", style: .default) { (alertAction) -> Void in
+            print("accepted rematch from \(peerID)")
+            self.appDelegate.mpcManager.send(string: "accepted")
+            self.connectedWithPeer(peerID: peerID)
+        }
+    
+        let declineAction = UIAlertAction(title: "Cancel", style: .cancel) { (alertAction) -> Void in
+           //self.appDelegate.mpcManager.invitationHandler(false, nil)
+        }
+    
+        alert.addAction(acceptAction)
+        alert.addAction(declineAction)
+    
+        OperationQueue.main.addOperation { () -> Void in
+            self.present(alert, animated: true, completion: nil)
+        }
+    }
+    func endSession() {
+        appDelegate.mpcManager.session.disconnect()
+        //appDelegate.mpcManager.browser.stopBrowsingForPeers()
+        //appDelegate.mpcManager.advertiser.stopAdvertisingPeer()
+    }
     // MARK: - Actions
     @IBAction func didTapDone() {
+        // disconnect session and stop browsing
+        self.appDelegate.mpcManager.send(string: "done")
         self.performSegue(withIdentifier: "unwindToStart", sender: self)
     }
+    
     @IBAction func didTapRematch() {
-        // TODO: Present Confirmation alert
-        guard let peerID = previousPeerID else {return}
-        appDelegate.mpcManager.browser.invitePeer(peerID, to: appDelegate.mpcManager.session, withContext: nil, timeout: 20)
+        // unwrap peerID
+        guard let peerID = self.previousPeerID else {
+            print("unable to unwrap peerID")
+            return
+        }
+
+        // present confirmation alert
+        let alert = UIAlertController(title: "", message: "Request Rematch with \(peerID)?", preferredStyle: UIAlertController.Style.alert)
+        let acceptAction: UIAlertAction = UIAlertAction(title: "OK", style: .default) { (alertAction) -> Void in
+            // send invitation to peer if confirmed
+            print("Inviting peer for rematch")
+            // send request to peer
+            self.appDelegate.mpcManager.send(string: "request")
+        }
+    
+        let declineAction = UIAlertAction(title: "Cancel", style: .cancel) { (alertAction) -> Void in
+            // do something
+        }
+    
+        alert.addAction(acceptAction)
+        alert.addAction(declineAction)
+    
+        OperationQueue.main.addOperation { () -> Void in
+            self.present(alert, animated: true, completion: nil)
+        }
     }
     // give users option to disqualify/delete last game
     // can be requested by either user, peer needs to accept or reject refute request
@@ -66,13 +149,19 @@ extension GameOverViewController: MPCManagerDelegate {
     
     // send invitation to peer
     func invitationWasReceived(fromPeer: String) {
-        let alert = UIAlertController(title: "", message: "\(fromPeer) wants to play.", preferredStyle: UIAlertController.Style.alert)
+        guard let peerID = self.previousPeerID else {
+            print("unable to unwrap peerid")
+            return
+        }
+        let alert = UIAlertController(title: "", message: "\(fromPeer) requests a rematch.", preferredStyle: UIAlertController.Style.alert)
     
-        let acceptAction: UIAlertAction = UIAlertAction(title: "Accept", style: UIAlertAction.Style.default) { (alertAction) -> Void in
-           self.appDelegate.mpcManager.invitationHandler(true, self.appDelegate.mpcManager.session)
+        let acceptAction: UIAlertAction = UIAlertAction(title: "Accept", style: .default) { (alertAction) -> Void in
+            print("accepted rematch from \(fromPeer)")
+            self.appDelegate.mpcManager.invitationHandler(true, self.appDelegate.mpcManager.session)
+            self.connectedWithPeer(peerID: peerID)
         }
     
-        let declineAction = UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel) { (alertAction) -> Void in
+        let declineAction = UIAlertAction(title: "Cancel", style: .cancel) { (alertAction) -> Void in
            self.appDelegate.mpcManager.invitationHandler(false, nil)
         }
     
@@ -87,8 +176,12 @@ extension GameOverViewController: MPCManagerDelegate {
     // segue to game screen (HomeViewController)
     func connectedWithPeer(peerID: MCPeerID) {
         // jump to main queue
+        print("reconnected with peer")
         OperationQueue.main.addOperation { () -> Void in
-            guard let peerID = self.previousPeerID else {return}
+            guard let peerID = self.previousPeerID else {
+                print("unable to unwrap peerid")
+                return
+            }
             
             let mainStoryboard = UIStoryboard(name: "Main", bundle: nil)
             let vc: HomeViewController = mainStoryboard.instantiateViewController(withIdentifier: "GameView") as! HomeViewController

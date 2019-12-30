@@ -45,13 +45,13 @@ class MPCManager: NSObject, MCSessionDelegate, MCNearbyServiceBrowserDelegate, M
         browser.delegate = self
         
         advertiser = MCNearbyServiceAdvertiser(peer: peer, discoveryInfo: nil, serviceType: "boatrace")
-        self.advertiser.startAdvertisingPeer()
+       // self.advertiser.startAdvertisingPeer()
         advertiser.delegate = self
         
     }
     // send string to peer - works
     func send(string : String) {
-        NSLog("%@", "sendColor: \(string) to \(session.connectedPeers.count) peers")
+        NSLog("%@", "sent: \(string) to \(session.connectedPeers.count) peers")
 
         if session.connectedPeers.count > 0 {
             do {
@@ -82,7 +82,7 @@ class MPCManager: NSObject, MCSessionDelegate, MCNearbyServiceBrowserDelegate, M
     // MARK: - Protocol Stubs
     
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
-        switch state{
+        switch state {
         case MCSessionState.connected:
                print("Connected to session: \(session)")
                delegate?.connectedWithPeer(peerID: peerID)

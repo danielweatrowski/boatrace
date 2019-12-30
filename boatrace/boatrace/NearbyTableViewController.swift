@@ -50,6 +50,7 @@ class NearbyTableViewController: UITableViewController {
         // send invitation to selected peer
         let selectedPeer = appDelegate.mpcManager.foundPeers[indexPath.row] as MCPeerID
         thisPeer = selectedPeer
+        print("peer selected")
         
         appDelegate.mpcManager.browser.invitePeer(selectedPeer, to: appDelegate.mpcManager.session, withContext: nil, timeout: 20)
     }

@@ -130,6 +130,7 @@ class HomeViewController: UIViewController {
         
         vc.time = String(format: "%.1f", self.counter)
         vc.didWin = self.didWin
+        vc.previousPeerID = peerID
 
         vc.modalPresentationStyle = .fullScreen
         self.present(vc, animated: true)

@@ -22,12 +22,16 @@
                                         <rect key="frame" x="0.0" y="0.0" width="78" height="30"/>
                                         <state key="normal" title="Start Game"/>
                                         <connections>
+                                            <action selector="didTapStartGame" destination="DUY-Xr-tCt" eventType="touchUpInside" id="WLC-bk-NRp"/>
                                             <segue destination="ltz-Mk-BrY" kind="presentation" id="jUT-UF-9Vm"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CAq-5Y-i3h">
                                         <rect key="frame" x="0.0" y="38" width="78" height="30"/>
                                         <state key="normal" title="Join Game"/>
+                                        <connections>
+                                            <action selector="didTapJoinGame" destination="DUY-Xr-tCt" eventType="touchUpInside" id="dP9-kA-v4I"/>
+                                        </connections>
                                     </button>
                                 </subviews>
                             </stackView>
@@ -162,6 +166,9 @@
                                     <constraint firstAttribute="height" constant="40" id="1id-B0-GnN"/>
                                 </constraints>
                                 <state key="normal" title="Rematch"/>
+                                <connections>
+                                    <action selector="didTapRematch" destination="0jR-RG-4Zt" eventType="touchUpInside" id="VjS-js-Mgz"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="f6b-zD-kpD">
                                 <rect key="frame" x="20" y="250" width="374" height="40"/>
@@ -169,6 +176,9 @@
                                     <constraint firstAttribute="height" constant="40" id="mnc-4l-zWk"/>
                                 </constraints>
                                 <state key="normal" title="Refute"/>
+                                <connections>
+                                    <action selector="didTapRefute" destination="0jR-RG-4Zt" eventType="touchUpInside" id="hwT-Cf-mOq"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xwn-Lf-Nmf">
                                 <rect key="frame" x="20" y="202" width="374" height="40"/>
@@ -179,6 +189,9 @@
                                 <state key="normal" title="Done">
                                     <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 </state>
+                                <connections>
+                                    <action selector="didTapDone" destination="0jR-RG-4Zt" eventType="touchUpInside" id="ER1-pg-Q7a"/>
+                                </connections>
                             </button>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
